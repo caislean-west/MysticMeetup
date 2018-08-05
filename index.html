@@ -9,6 +9,9 @@
       <a-assets>
         <a-asset-item id="level-obj" src="PastVillage/PastVillage.obj"></a-asset-item>
         <a-asset-item id="level-mtl" src="PastVillage/PastVillage.mtl"></a-asset-item>
+        
+        <a-asset-item id="level-gltf" src="models-gltf/PastVillage.gltf"></a-asset-item>
+        <a-asset-item id="tailsdoll" src="models-gltf/TailsDoll.gltf"></a-asset-item>
   
         <a-asset-item id="vr_controller_vive-obj" src="Controllers/vr_controller_vive.obj"></a-asset-item>
         <a-asset-item id="vr_controller_vive-mtl" src="Controllers/vr_controller_vive.mtl"></a-asset-item>
@@ -21,12 +24,14 @@
       <a-entity vive-controls="hand: right" obj-model="obj: #vr_controller_vive-obj; mtl: #vr_controller_vive-mtl" teleport-controls></a-entity>
       <a-entity daydream-controls teleport-controls></a-entity>
       <a-entity gearvr-controls teleport-controls></a-entity>
+      
+      <a-entity position="0 -640 0" obj-model="obj: #level-obj; mtl: #level-mtl"></a-entity>
       -->
-      <a-entity gearvr-controls teleport-controls></a-entity>
       
       <a-light type="ambient" color="#FFF"></a-light>
       <a-sky src="#sky"></a-sky>
-      <a-entity position="0 -640 0" obj-model="obj: #level-obj; mtl: #level-mtl"></a-entity>
+      
+      <a-gltf-model position="0 -640 0" src="#level-gltf"></a-gltf-model>
       
       <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
       <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>

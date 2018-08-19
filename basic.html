@@ -1,0 +1,111 @@
+<html>
+  <head>
+    <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
+		<script src="https://cdn.rawgit.com/AltspaceVR/aframe-altspace-component/v1.3.2/dist/aframe-altspace-component.min.js"></script>
+		<script src="https://unpkg.com/aframe-environment-component/dist/aframe-environment-component.min.js"></script>
+		<script>
+		AFRAME.registerComponent('log', {
+						schema: {type: 'string'},
+						init: function() {
+										var stringToLog = this.data;
+										console.log(stringToLog);
+						}
+		});
+
+		AFRAME.registerComponent('do-something-once-loaded', {
+		  init: function () {
+		    // This will be called after the entity has properly attached and loaded.
+		    console.log('I am ready!');
+		  }
+		});
+
+		AFRAME.registerComponent('scale-on-mouseenter', {
+	    schema: {
+	      to: {default: '2.5 2.5 2.5'}
+	    },
+	
+	    init: function () {
+	      var data = this.data;
+				this.data.from = this.el.getAttribute("scale").toArray().toString();
+				console.log("scale init");
+				//console.log(from);
+	      this.el.addEventListener('mouseenter', function () {
+					console.log("grow");
+	        this.setAttribute('scale', data.to);
+	      });
+	      this.el.addEventListener('mouseleave', function () {
+					console.log("shrink");
+	        this.setAttribute('scale', data.from);
+	      });
+	    }
+	  });				
+
+		</script>
+  </head>
+  <body>
+    <a-scene altspace="vertical-align: center;" log="Test, log.">
+        
+			<a-assets>
+				<img id="skyTexture" src="textures/sky.png">
+				<img id="groundTexture" src="textures/ground.jpg">
+			</a-assets>
+
+			<!--a-entity environment="preset: forest; dressingAmount: 500"></a-entity -->
+			<a-sky src="#skyTexture"></a-sky>
+			<a-plane src="#groundTexture" repeat="10 10"
+							 width="30" height="30" 
+						   rotation="-90 0 0"></a-plane> 
+
+			<script>
+				var sceneEl = document.querySelector('a-scene');
+				var entityEl = document.createElement('a-entity');
+				entityEl.setAttribute('do-something-once-loaded', '');
+				sceneEl.appendChild(entityEl);
+			</script>
+
+			<a-entity
+			  tracked-controls
+			  vive-controls 
+				daydream-controls
+			  oculus-touch-controls  
+			  hand-controls  
+			  controller-cursor  
+			  sphere-collider  
+			  grab  
+			  throw 
+			  event-set="_event: grabstart; visible: false"  
+			  event-set="_event: grabend; visible: true"  
+			>
+			<a-entity geometry="primitive: sphere; radius: 0.05;"
+							  position="0 0 0" rotation="0 0 0"
+								color="#440"></a-entity>
+			</a-entity>
+
+			<a-plane id="file"
+							 scale-on-mouseenter="to: 2 2 2"
+							 position="0 1.4 -0.3" 
+							 rotation="0 0 0"
+							 width="0.2" height="0.14"
+							 scale="1 1 1"
+							 color="#888">
+				<a-text value="Cursors don't work closer than a half meter!"
+								align="left" anchor="center" baseline="center"
+							  width="0.15" wrap-count="15"></a-text>
+				<a-animation attribute="position" to="0 1.42 -0.3" direction="alternate" dur="2000" repeat="indefinite"></a-animation>				 
+			</a-plane>
+
+
+      <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
+      <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
+      <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
+      <a-plane position="0.01 0.01 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4"></a-plane>
+      <!--<a-sky color="#ECECEC"></a-sky>-->
+
+      <a-entity id="light" light="type: ambient; color: #888"></a-entity>
+
+			<a-camera position="0 1.5 1" rotation="0 40 0">
+				<a-cursor></a-cursor>
+			</a-camera>
+    </a-scene>
+  </body>
+</html>

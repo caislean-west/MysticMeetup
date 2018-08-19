@@ -3,6 +3,7 @@
     <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
 		<script src="https://cdn.rawgit.com/AltspaceVR/aframe-altspace-component/v1.3.2/dist/aframe-altspace-component.min.js"></script>
 		<script src="https://unpkg.com/aframe-environment-component/dist/aframe-environment-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-teleport-controls/dist/aframe-teleport-controls.min.js"></script>
 		<script>
 		AFRAME.registerComponent('log', {
 						schema: {type: 'string'},
@@ -48,11 +49,15 @@
 			<a-assets>
 				<img id="skyTexture" src="textures/sky.png">
 				<img id="groundTexture" src="textures/ground.jpg">
+				
+        <a-asset-item id="vr_controller_vive-obj" src="models-obj/Controllers/vr_controller_vive.obj"></a-asset-item>
+        <a-asset-item id="vr_controller_vive-mtl" src="models-obj/Controllers/vr_controller_vive.mtl"></a-asset-item>
 			</a-assets>
 
 			<!--a-entity environment="preset: forest; dressingAmount: 500"></a-entity -->
 			<a-sky src="#skyTexture"></a-sky>
-			<a-plane src="#groundTexture" repeat="10 10"
+			<a-plane id="floor"
+							 src="#groundTexture" repeat="10 10"
 							 width="30" height="30" 
 						   rotation="-90 0 0"></a-plane> 
 
@@ -62,7 +67,7 @@
 				entityEl.setAttribute('do-something-once-loaded', '');
 				sceneEl.appendChild(entityEl);
 			</script>
-
+<!--
 			<a-entity
 			  tracked-controls
 			  vive-controls 
@@ -79,6 +84,27 @@
 			<a-entity geometry="primitive: sphere; radius: 0.05;"
 							  position="0 0 0" rotation="0 0 0"
 								color="#440"></a-entity>
+			</a-entity>
+      <a-entity vive-controls="hand: right" laser-control="hand: right;" obj-model="obj: #vr_controller_vive-obj; mtl: #vr_controller_vive-mtl" teleport-controls></a-entity>
+      <a-entity vive-controls="hand: right" laser-control="hand: right;" ></a-entity>
+      	<a-entity obj-model="obj: #vr_controller_vive-obj; mtl: #vr_controller_vive-mtl"></a-entity>
+      	<a-obj-model src="#vr_controller_vive-obj" mtl="#vr_controller_vive-mtl"></a-obj-model>
+							<a-box scale="0.035 0.015	0.07" color="#666600"></a-box>
+-->
+
+			<a-entity id="cameraRig">
+      <a-entity 
+							vive-controls="hand: left" 
+							daydream-controls="hand: left" 
+							laser-controls 
+							teleport-controls >
+			</a-entity>
+      <a-entity 
+							vive-controls="hand: right" 
+							daydream-controls="hand: right" 
+							laser-controls 
+							teleport-controls >
+			</a-entity>
 			</a-entity>
 
 			<a-plane id="file"
@@ -102,10 +128,11 @@
       <!--<a-sky color="#ECECEC"></a-sky>-->
 
       <a-entity id="light" light="type: ambient; color: #888"></a-entity>
-
+<!--
 			<a-camera position="0 1.5 1" rotation="0 40 0">
 				<a-cursor></a-cursor>
 			</a-camera>
+-->
     </a-scene>
   </body>
 </html>

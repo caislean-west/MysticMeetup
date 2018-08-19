@@ -1,7 +1,48 @@
 <html>
   <head>
-    <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
-    <script src="https://unpkg.com/aframe-teleport-controls/dist/aframe-teleport-controls.min.js"></script>
+		<script src="lib-js/aframe-v0.8.2.js"></script>
+    <script src="lib-js/aframe-teleport-controls.min.js"></script>
+		<script src="https://cdn.rawgit.com/AltspaceVR/aframe-altspace-component/v1.3.2/dist/aframe-altspace-component.min.js"></script>
+		<script src="https://unpkg.com/aframe-environment-component/dist/aframe-environment-component.min.js"></script>
+
+		<script>
+
+		AFRAME.registerComponent('portal-traveller', {
+				schema: { type: 'number', default: 1 },
+				init: function() {
+						var self = this;
+						this.el.addEventListener('portal-announce', function(event) {
+										console.log("Traveller #"+self.data+" heard event: "+event);
+										if (event.detail.travdata == self.data) {
+											self.el.setAttribute("position", event.detail.pos);
+										}
+						});
+				}
+		});
+		
+		AFRAME.registerComponent('portal-stone', {
+				schema: { type: 'string' },
+				init: function() {
+					var self = this;
+		      this.el.addEventListener('mouseenter', function () {
+						var targetid = self.data;
+						var p = document.querySelector("#"+targetid).getAttribute("position");
+						console.log("Portal to "+targetid+" is announcing "+p.toString());
+						self.el.emit('portal-announce', { travdata: 1, pos: p }, true);
+		      });
+				}
+		});
+
+		AFRAME.registerComponent('portal-speaker', {
+				init: function() {
+						this.el.addEventListener('portal-announce', function(event) {
+								console.log("Speaker heard event: "+event.details.toString());
+						});
+				}
+		});
+
+
+		</script>
   </head>
   <body>
     <a-scene>
@@ -21,19 +62,45 @@
         <img id="sunset" src="textures/sunset2.jpg">
       </a-assets>
       
+			<a-entity id="cameraRig" portal-traveller="1">
+	      <!-- camera -->
+	      <a-entity id="head" position="0 1.5 0" camera wasd-controls look-controls></a-entity>
+	      <!-- hand controls -->
+			  <!--  
+				-->
+	      <a-entity id="right-hand" 
+									teleport-controls="collisionEntities: #village-level; cameraRig: #cameraRig; teleportOrigin: #head; interval: 10; curveShootingSpeed: 8;"
+									controller-cursor
+									laser-controls
+									vive-controls="hand: right;"
+									daydream-controls
+									>
+									<a-box scale="0.035 0.015	0.07" color="#006666"></a-box>
+				</a-entity>
+	    </a-entity>
+
       <!--
-      <a-entity vive-controls="hand: left" obj-model="obj: #vr_controller_vive-obj; mtl: #vr_controller_vive-mtl" teleport-controls></a-entity>
-      <a-entity vive-controls="hand: right" obj-model="obj: #vr_controller_vive-obj; mtl: #vr_controller_vive-mtl" teleport-controls></a-entity>
-      <a-entity daydream-controls teleport-controls></a-entity>
-      <a-entity gearvr-controls teleport-controls></a-entity>
-      
       <a-entity position="0 -640 0" obj-model="obj: #level-obj; mtl: #level-mtl"></a-entity>
       -->
       
       <a-light type="ambient" color="#FFF"></a-light>
       <a-sky position="0 -1000 0" rotation="0 140 0" src="#sunset"></a-sky>
       
-      <a-gltf-model position="0 -640 0" src="#level-gltf"></a-gltf-model>
+      <!--
+      <a-gltf-model id="village-level" position="0 -640 0" src="#level-gltf"></a-gltf-model>
+      -->
+      <a-obj-model id="village-level" position="0 -157.5 0" scale="0.25 0.25 0.25" src="#level-obj" mtl="#level-mtl"></a-obj-model>
+
+			<a-box id="portal-top" position="3 0 0" scale="0.5 0.1 0.5"
+						 portal-stone="portal-bottom"
+						 visible="false"
+						 color="#334411">
+			<a-entity portal-speaker></a-entity>
+						 </a-box>
+			<a-box id="portal-bottom" position="-3 0 0" scale="0.5 0.1 0.5"
+						 portal-stone="portal-top"
+						 visible="false"
+						 color="#334411"></a-box>
       
 			<a-entity id="shardRing" position="0 2 0" scale="1 1 1">
 

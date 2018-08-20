@@ -1,7 +1,7 @@
 <html>
   <head>
 		<script src="lib-js/aframe-v0.8.2.js"></script>
-    <script src="lib-js/aframe-teleport-controls.min.js"></script>
+    <script src="lib-js/aframe-teleport-controls.js"></script>
 		<script src="https://cdn.rawgit.com/AltspaceVR/aframe-altspace-component/v1.3.2/dist/aframe-altspace-component.min.js"></script>
 		<script src="https://unpkg.com/aframe-environment-component/dist/aframe-environment-component.min.js"></script>
 
@@ -10,11 +10,15 @@
 		AFRAME.registerComponent('portal-traveller', {
 				schema: { type: 'number', default: 1 },
 				init: function() {
+						var hit = document.querySelector("a-entity[teleport-controls]");
 						var self = this;
-						this.el.addEventListener('portal-announce', function(event) {
-										console.log("Traveller #"+self.data+" heard event: "+event);
+						this.el.sceneEl.addEventListener('portal-announce', function(event) {
 										if (event.detail.travdata == self.data) {
-											self.el.setAttribute("position", event.detail.pos);
+											var p = event.detail.pos;
+											var pstr = ""+p.x+" "+p.y+" "+p.z;
+											console.log("Traveller #"+self.data+" moving to: "+pstr);
+											self.el.setAttribute("position", p);
+											hit.setAttribute("teleport-controls", "hitYRegister: "+p.y);
 										}
 						});
 				}
@@ -23,24 +27,51 @@
 		AFRAME.registerComponent('portal-stone', {
 				schema: { type: 'string' },
 				init: function() {
+					var elem = document.createElement('a-animation');
+					elem.setAttribute("attribute", "material.emissive"); 
+					elem.setAttribute("from", "#000000"); 
+					elem.setAttribute("to", "#132d2d"); 
+					elem.setAttribute("dur", "700"); 
+					elem.setAttribute("direction", "alternate"); 
+					elem.setAttribute("repeat", "indefinite");
+					elem.setAttribute("begin", "mouseenter"); 
+					elem.setAttribute("end", "mouseleave");
+					this.el.appendChild(elem);
+
 					var self = this;
-		      this.el.addEventListener('mouseenter', function () {
+		      this.el.addEventListener('mouseleave', function () {
 						var targetid = self.data;
 						var p = document.querySelector("#"+targetid).getAttribute("position");
-						console.log("Portal to "+targetid+" is announcing "+p.toString());
+						var pstr = ""+p.x+" "+p.y+" "+p.z;
+						console.log("Portal to "+targetid+" is announcing "+pstr);
 						self.el.emit('portal-announce', { travdata: 1, pos: p }, true);
 		      });
 				}
 		});
 
 		AFRAME.registerComponent('portal-speaker', {
+				schema: { type: 'string', default: "Speaker" },
 				init: function() {
-						this.el.addEventListener('portal-announce', function(event) {
-								console.log("Speaker heard event: "+event.details.toString());
+						console.log(""+this.data+" was born.");
+						var self = this;
+						this.el.sceneEl.addEventListener('portal-announce', function(event) {
+								console.log(""+self.data+" heard event: "+event.details.toString());
 						});
 				}
 		});
 
+		AFRAME.registerComponent('teleport-log', {
+				init: function() {
+						var self = this;
+						this.el.addEventListener('teleported', function(event) {
+								var d = event.detail;
+								from = d.oldPosition.toArray().toString();
+								to = d.newPosition.toArray().toString();
+								hit = d.hitPoint.toArray().toString();
+								console.log("Teleported: "+from+" -> "+to+", Hitpoint: "+hit);
+						});
+				}
+		});
 
 		</script>
   </head>
@@ -58,8 +89,14 @@
         <a-asset-item id="vr_controller_vive-obj" src="models-obj/Controllers/vr_controller_vive.obj"></a-asset-item>
         <a-asset-item id="vr_controller_vive-mtl" src="models-obj/Controllers/vr_controller_vive.mtl"></a-asset-item>
         
+				<img id="portal-stone-texture" src="models-obj/PastVillage/mr_064k_pcueye.png">
+				<a-mixin id="portal-stone-mixin" 
+								 geometry="primitive: box" scale="0.8 0.3 0.8" 
+								 material="src: #portal-stone-texture;"></a-mixin>
+
         <img id="sky" src="textures/sky.png">
         <img id="sunset" src="textures/sunset2.jpg">
+
       </a-assets>
       
 			<a-entity id="cameraRig" portal-traveller="1">
@@ -69,7 +106,8 @@
 			  <!--  
 				-->
 	      <a-entity id="right-hand" 
-									teleport-controls="collisionEntities: #village-level; cameraRig: #cameraRig; teleportOrigin: #head; interval: 10; curveShootingSpeed: 8;"
+									teleport-controls="type: line; collisionEntities: #village-level; cameraRig: #cameraRig; teleportOrigin: #head; interval: 50; curveShootingSpeed: 8; curveNumberPoints: 60; landingMaxAngle: 60; maxLength: 30;"
+									teleport-log
 									controller-cursor
 									laser-controls
 									vive-controls="hand: right;"
@@ -88,21 +126,91 @@
       
       <!--
       <a-gltf-model id="village-level" position="0 -640 0" src="#level-gltf"></a-gltf-model>
-      -->
       <a-obj-model id="village-level" position="0 -157.5 0" scale="0.25 0.25 0.25" src="#level-obj" mtl="#level-mtl"></a-obj-model>
+      -->
+			<!-- LEVEL MODELS -->
 
-			<a-box id="portal-top" position="3 0 0" scale="0.5 0.1 0.5"
-						 portal-stone="portal-bottom"
-						 visible="false"
-						 color="#334411">
-			<a-entity portal-speaker></a-entity>
-						 </a-box>
-			<a-box id="portal-bottom" position="-3 0 0" scale="0.5 0.1 0.5"
-						 portal-stone="portal-top"
-						 visible="false"
-						 color="#334411"></a-box>
+      <a-obj-model id="village-level" position="0 -78.7 0" scale="0.125 0.125 0.125" src="#level-obj" mtl="#level-mtl"></a-obj-model>
+
+			<!-- PORTAL STONES -->
+			<a-entity mixin="portal-stone-mixin"
+								id="portal-top-r" portal-stone="portal-building-top"
+						 	  position="2.5 -1.07 0" 
+			></a-entity>
+			<a-entity mixin="portal-stone-mixin"
+								id="portal-top-l" portal-stone="portal-topfloor"
+						 		position="-2.5 -1.07 0" 
+			></a-entity>
+			<a-entity mixin="portal-stone-mixin"
+								id="portal-top-d" portal-stone="portal-bottom"
+						 		position="0 -0.07 2.5" 
+			></a-entity>
+			<a-entity mixin="portal-stone-mixin"
+								id="portal-top-u" portal-stone="portal-ocean"
+						 		position="0 -0.07 -2.5" 
+			></a-entity>
+
+			<a-entity mixin="portal-stone-mixin"
+								id="portal-safety" portal-stone="portal-top-d" 
+						 	 	position="0 -100 0" 
+								scale="40 40 100"
+			></a-entity>
+
+			<a-entity mixin="portal-stone-mixin"
+								id="portal-ocean" portal-stone="portal-top-d" 
+						 	 	position="0 -66.321 -100" 
+			></a-entity>
+
+			<a-entity mixin="portal-stone-mixin"
+								id="portal-building-top" portal-stone="portal-building-bottom"
+						 		position="103.981 -53.801 122.588" 
+			></a-entity>
+			<a-entity mixin="portal-stone-mixin"
+								id="portal-building-bottom" portal-stone="portal-building-top"
+						 		position="103.981 -66.305 3.407" 
+			></a-entity>
+			
+			<a-entity mixin="portal-stone-mixin"
+								id="portal-bottom" portal-stone="portal-middle"
+						 		position="0 -78.819 61.904"
+			></a-entity>
+			<a-entity mixin="portal-stone-mixin"
+								id="portal-middle" portal-stone="portal-top-d"
+						 		position="0 -41.320 19.766" 
+			></a-entity>
+
+			<a-entity mixin="portal-stone-mixin"
+								id="portal-behind" portal-stone="portal-topfloor"
+						 		position="-93.689 -53.824 -97.609"
+			></a-entity>
+			<a-entity mixin="portal-stone-mixin"
+								id="portal-topfloor" portal-stone="portal-behind"
+						 		position="-103.985 -41.296 122.455"
+			></a-entity>
       
-			<a-entity id="shardRing" position="0 2 0" scale="1 1 1">
+			<a-entity mixin="portal-stone-mixin"
+								id="portal-hidden" portal-stone="portal-secret"
+						 		position="-33.279 -75.652 131.967"
+								scale="1.2 0.3 1.2"
+								rotation="50 -45 0"
+			></a-entity>
+			<a-entity mixin="portal-stone-mixin"
+								id="portal-secret" portal-stone="portal-secret"
+						 		position="-126.207 -0.689 -91.826"
+			></a-entity>
+      
+			<!-- OTHER ITEMS -->
+      <a-gltf-model id="tailsdoll" position="-13.147 -20.443 208.812"
+										scale="0.1 0.1 0.1" rotation="0 180 0"
+										src="#tailsdoll">
+							<a-animation attribute="position"
+													 to="-13.147 -18.443 208.812"
+													 dur="3000" 
+													 easing="linear"
+													 direction="alternate" repeat="indefinite"></a-animation>
+			</a-gltf-model>
+
+			<a-entity id="shardRing" position="0 2 0" scale="0.75 0.75 0.7">
 
 							<a-animation attribute="rotation" to="0 360 0" dur="30000" 
 													 direction="forward" repeat="indefinite"

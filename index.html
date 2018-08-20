@@ -112,6 +112,7 @@
 									laser-controls
 									vive-controls="hand: right;"
 									daydream-controls
+									gearvr-controls
 									>
 									<a-box scale="0.035 0.015	0.07" color="#006666"></a-box>
 				</a-entity>
@@ -200,6 +201,33 @@
 			></a-entity>
       
 			<!-- OTHER ITEMS -->
+			<!--
+								font="fonts/THAILAND.TTF-msdf.json"
+								fontImage="fonts/THAILANDTTF.0.png"
+								negate="false"
+			-->
+			<a-plane id="instructions-1"
+						 	 position="-2.5 0.06 0"
+						   rotation="-90 90 0"
+							 width="1" height="1"
+							 material="alphaTest: 1.0;">
+				<a-text value="Wave the laser over the portal stones until they glow, then move it away to warp to the linked stone. Click the trackpad and point to teleport around."
+								align="center" anchor="center" baseline="top"
+							  width="1.95" wrap-count="22"
+								color="#292816"></a-text>
+			</a-plane>
+
+			<a-plane id="instructions-2"
+						 	 position="2.5 0.06 0"
+						   rotation="-90 -90 0"
+							 width="1" height="1"
+							 material="alphaTest: 1.0;">
+				<a-text value="Legends say the echidnas ran from the setting sun and were driven to madness! Look down carefully, push the limit, and you will find what they found so long ago."
+								align="center" anchor="center" baseline="top"
+							  width="1.95" wrap-count="26"
+								color="#292816"></a-text>
+			</a-plane>
+
       <a-gltf-model id="tailsdoll" position="-13.147 -20.443 208.812"
 										scale="0.1 0.1 0.1" rotation="0 180 0"
 										src="#tailsdoll">

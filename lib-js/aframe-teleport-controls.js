@@ -94,7 +94,8 @@
 	    drawIncrementally: {default: false},
 	    incrementalDrawMs: {default: 700},
 	    missOpacity: {default: 1.0},
-	    hitOpacity: {default: 1.0}
+	    hitOpacity: {default: 1.0},
+			hitYRegister: {default: 0.0}
 	  },
 
 	  init: function () {
@@ -184,6 +185,13 @@
 	    this.hitEntity.setAttribute('visible', false);
 
 	    if ('collisionEntities' in diff) { this.queryCollisionEntities(); }
+
+			// Register an external height shift (derpy technique for this)
+			if (this.data.hitYRegister != oldData.hitYRegister)
+			{
+				console.log("Height externally changed to "+this.data.hitYRegister);
+				this.prevHitHeight = this.data.hitYRegister;
+			}
 	  },
 
 	  remove: function () {

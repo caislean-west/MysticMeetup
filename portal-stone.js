@@ -21,8 +21,12 @@ AFRAME.registerComponent('portal-traveller', {
 });
 
 AFRAME.registerComponent('portal-stone', {
-		schema: { type: 'string' },
-		init: function() {
+		schema: { 
+			targetid: { type: 'string' },
+			method: { type: 'string', default: 'teleport' },
+			boxDist: { type: 'number', default: 0 }
+		},
+		applyGlowAnim: function() {
 			var elem = document.createElement('a-animation');
 			elem.setAttribute("attribute", "material.emissive"); 
 			elem.setAttribute("from", "#000000"); 
@@ -30,18 +34,79 @@ AFRAME.registerComponent('portal-stone', {
 			elem.setAttribute("dur", "700"); 
 			elem.setAttribute("direction", "alternate"); 
 			elem.setAttribute("repeat", "indefinite");
-			elem.setAttribute("begin", "mouseenter"); 
-			elem.setAttribute("end", "mouseleave");
+			elem.setAttribute("easing", "ease-sine");
+			if (this.data.method == "point") {
+				elem.setAttribute("begin", "mouseenter"); 
+				elem.setAttribute("end", "mouseleave");
+			}
 			this.el.appendChild(elem);
+		},
+		checkBoxDist: function(posA, posB, dist) {
+			if (dist <= 0) return false;
+			//add 1cm margin, in case object is a collidable cube
+			dist += 0.01
+			if (Math.abs(posA.x - posB.x) < dist
+					&& Math.abs(posA.y - posB.y) < dist
+					&& Math.abs(posA.z - posB.z) < dist) {
+				return true;
+			} else {
+				return false;
+			}
+		},
+		announceTargetPortal: function(self) {
+			var targetid = this.data.targetid;
+			var p = this.targetElem.getAttribute("position");
+			var pstr = ""+p.x+" "+p.y+" "+p.z;
+			console.log("Portal to "+targetid+" is announcing "+pstr);
+			self.el.emit('portal-announce', { travdata: 1, pos: p }, true);
+		},
+		init: function() {
+			// Make the teleport stone glow according to method
+			this.applyGlowAnim();
 
+			// Internal variables
+			var targetid = this.data.targetid;
+			this.targetElem = document.querySelector("#"+targetid);
+
+			// Determine appropriate teleport hit box size for prims, if not set
+			if (this.data.boxDist <= 0) {
+				if (this.el.getAttribute("geometry").primitive) {
+					var geo = this.el.getAttribute("geometry");
+					var scale = this.el.getAttribute("scale");
+					if (geo.primitive == "box") {
+						var w = scale.x;
+						var d = scale.z;
+						var dist = (w > d) ? w : d;
+						this.data.boxDist = dist / 2;
+						console.log("BOX "+this.data.boxDist);
+					} else {
+						// default value for primitive objects
+						console.log("PortalStone: default primitive hitbox is 1.");
+						this.data.boxDist = 1;
+					}
+				} else {
+					// default value for non-primitive objects
+					console.log("PortalStone: default primitive hitbox is 0.");
+					this.data.boxDist = 0;
+				}
+			} 
+
+			// Set up listeners
 			var self = this;
-      this.el.addEventListener('mouseleave', function () {
-				var targetid = self.data;
-				var p = document.querySelector("#"+targetid).getAttribute("position");
-				var pstr = ""+p.x+" "+p.y+" "+p.z;
-				console.log("Portal to "+targetid+" is announcing "+pstr);
-				self.el.emit('portal-announce', { travdata: 1, pos: p }, true);
-      });
+			if (this.data.method == 'teleport') {
+				var teleCtrlElem = document.querySelector("a-entity[teleport-controls]");
+				teleCtrlElem.addEventListener('teleported', function(event) {
+						var telePos = event.detail.hitPoint;
+						var stonePos = self.el.getAttribute("position");
+						if (self.checkBoxDist(telePos, stonePos, self.data.boxDist)) {
+								self.announceTargetPortal(self);
+						}
+				});
+			} else if (this.data.method == 'point') {
+	      this.el.addEventListener('mouseleave', function () {
+						self.announceTargetPortal(self);
+	      });
+			}
 		}
 });
 

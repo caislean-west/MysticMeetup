@@ -76,68 +76,68 @@
 
 			<!-- PORTAL STONES -->
 			<a-entity mixin="portal-stone-mixin"
-								id="portal-top-r" portal-stone="portal-building-top"
+								id="portal-top-r" portal-stone="targetid: portal-building-top"
 						 	  position="2.5 -1.07 0" 
 			></a-entity>
 			<a-entity mixin="portal-stone-mixin"
-								id="portal-top-l" portal-stone="portal-topfloor"
+								id="portal-top-l" portal-stone="targetid: portal-topfloor"
 						 		position="-2.5 -1.07 0" 
 			></a-entity>
 			<a-entity mixin="portal-stone-mixin"
-								id="portal-top-d" portal-stone="portal-bottom"
+								id="portal-top-d" portal-stone="targetid: portal-bottom"
 						 		position="0 -0.07 2.5" 
 			></a-entity>
 			<a-entity mixin="portal-stone-mixin"
-								id="portal-top-u" portal-stone="portal-ocean"
+								id="portal-top-u" portal-stone="targetid: portal-ocean;"
 						 		position="0 -0.07 -2.5" 
 			></a-entity>
 
 			<a-entity mixin="portal-stone-mixin"
-								id="portal-safety" portal-stone="portal-top-d" 
+								id="portal-safety" portal-stone="targetid: portal-top-d; method: point;"
 						 	 	position="0 -100 0" 
 								scale="40 40 100"
 			></a-entity>
 
 			<a-entity mixin="portal-stone-mixin"
-								id="portal-ocean" portal-stone="portal-top-d" 
+								id="portal-ocean" portal-stone="targetid: portal-top-d"
 						 	 	position="0 -66.321 -100" 
 			></a-entity>
 
 			<a-entity mixin="portal-stone-mixin"
-								id="portal-building-top" portal-stone="portal-building-bottom"
+								id="portal-building-top" portal-stone="targetid: portal-building-bottom"
 						 		position="103.981 -53.801 122.588" 
 			></a-entity>
 			<a-entity mixin="portal-stone-mixin"
-								id="portal-building-bottom" portal-stone="portal-building-top"
+								id="portal-building-bottom" portal-stone="targetid: portal-building-top"
 						 		position="103.981 -66.305 3.407" 
 			></a-entity>
 			
 			<a-entity mixin="portal-stone-mixin"
-								id="portal-bottom" portal-stone="portal-middle"
+								id="portal-bottom" portal-stone="targetid: portal-middle"
 						 		position="0 -78.819 61.904"
 			></a-entity>
 			<a-entity mixin="portal-stone-mixin"
-								id="portal-middle" portal-stone="portal-top-d"
+								id="portal-middle" portal-stone="targetid: portal-top-d"
 						 		position="0 -41.320 19.766" 
 			></a-entity>
 
 			<a-entity mixin="portal-stone-mixin"
-								id="portal-behind" portal-stone="portal-topfloor"
+								id="portal-behind" portal-stone="targetid: portal-topfloor"
 						 		position="-93.689 -53.824 -97.609"
 			></a-entity>
 			<a-entity mixin="portal-stone-mixin"
-								id="portal-topfloor" portal-stone="portal-behind"
+								id="portal-topfloor" portal-stone="targetid: portal-behind"
 						 		position="-103.985 -41.296 122.455"
 			></a-entity>
       
 			<a-entity mixin="portal-stone-mixin"
-								id="portal-hidden" portal-stone="portal-secret"
+								id="portal-hidden" portal-stone="targetid: portal-secret"
 						 		position="-33.279 -75.652 131.967"
 								scale="1.2 0.3 1.2"
 								rotation="50 -45 0"
 			></a-entity>
 			<a-entity mixin="portal-stone-mixin"
-								id="portal-secret" portal-stone="portal-secret"
+								id="portal-secret" portal-stone="targetid: portal-secret"
 						 		position="-126.207 -0.689 -91.826"
 			></a-entity>
       
@@ -152,9 +152,9 @@
 						   rotation="-90 90 0"
 							 width="1" height="1"
 							 material="alphaTest: 1.0;">
-				<a-text value="Wave the laser over the portal stones until they glow, then move it away to warp to the linked stone. Click the trackpad and point to teleport around."
+				<a-text value="Click the trackpad and point to teleport.\n\nStepping on a glowing tile warps to the linked tile."
 								align="center" anchor="center" baseline="top"
-							  width="1.95" wrap-count="22"
+							  width="1.95" wrap-count="20"
 								mixin="old-font-mixin"></a-text>
 			</a-plane>
 

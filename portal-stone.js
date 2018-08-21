@@ -44,10 +44,8 @@ AFRAME.registerComponent('portal-stone', {
 		checkBoxDist: function(posA, posB, dist) {
 			if (dist <= 0) return false;
 			//add 1cm margin, in case object is a collidable cube
-			dist += 0.01
-			if (Math.abs(posA.x - posB.x) < dist
-					&& Math.abs(posA.y - posB.y) < dist
-					&& Math.abs(posA.z - posB.z) < dist) {
+			dist += this.boxMargin;
+			if (Math.abs(posA.x - posB.x) < dist && Math.abs(posA.y - posB.y) < dist && Math.abs(posA.z - posB.z) < dist) {
 				return true;
 			} else {
 				return false;
@@ -67,6 +65,7 @@ AFRAME.registerComponent('portal-stone', {
 			// Internal variables
 			var targetid = this.data.targetid;
 			this.targetElem = document.querySelector("#"+targetid);
+			this.boxMargin = 0.1;
 
 			// Determine appropriate teleport hit box size for prims, if not set
 			if (this.data.boxDist <= 0) {

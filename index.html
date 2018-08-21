@@ -4,75 +4,8 @@
     <script src="lib-js/aframe-teleport-controls.js"></script>
 		<script src="https://cdn.rawgit.com/AltspaceVR/aframe-altspace-component/v1.3.2/dist/aframe-altspace-component.min.js"></script>
 		<script src="https://unpkg.com/aframe-environment-component/dist/aframe-environment-component.min.js"></script>
-
+    <script src="portal-stone.js"></script>
 		<script>
-
-		AFRAME.registerComponent('portal-traveller', {
-				schema: { type: 'number', default: 1 },
-				init: function() {
-						var hit = document.querySelector("a-entity[teleport-controls]");
-						var self = this;
-						this.el.sceneEl.addEventListener('portal-announce', function(event) {
-										if (event.detail.travdata == self.data) {
-											var p = event.detail.pos;
-											var pstr = ""+p.x+" "+p.y+" "+p.z;
-											console.log("Traveller #"+self.data+" moving to: "+pstr);
-											self.el.setAttribute("position", p);
-											hit.setAttribute("teleport-controls", "hitYRegister: "+p.y);
-										}
-						});
-				}
-		});
-		
-		AFRAME.registerComponent('portal-stone', {
-				schema: { type: 'string' },
-				init: function() {
-					var elem = document.createElement('a-animation');
-					elem.setAttribute("attribute", "material.emissive"); 
-					elem.setAttribute("from", "#000000"); 
-					elem.setAttribute("to", "#132d2d"); 
-					elem.setAttribute("dur", "700"); 
-					elem.setAttribute("direction", "alternate"); 
-					elem.setAttribute("repeat", "indefinite");
-					elem.setAttribute("begin", "mouseenter"); 
-					elem.setAttribute("end", "mouseleave");
-					this.el.appendChild(elem);
-
-					var self = this;
-		      this.el.addEventListener('mouseleave', function () {
-						var targetid = self.data;
-						var p = document.querySelector("#"+targetid).getAttribute("position");
-						var pstr = ""+p.x+" "+p.y+" "+p.z;
-						console.log("Portal to "+targetid+" is announcing "+pstr);
-						self.el.emit('portal-announce', { travdata: 1, pos: p }, true);
-		      });
-				}
-		});
-
-		AFRAME.registerComponent('portal-speaker', {
-				schema: { type: 'string', default: "Speaker" },
-				init: function() {
-						console.log(""+this.data+" was born.");
-						var self = this;
-						this.el.sceneEl.addEventListener('portal-announce', function(event) {
-								console.log(""+self.data+" heard event: "+event.details.toString());
-						});
-				}
-		});
-
-		AFRAME.registerComponent('teleport-log', {
-				init: function() {
-						var self = this;
-						this.el.addEventListener('teleported', function(event) {
-								var d = event.detail;
-								from = d.oldPosition.toArray().toString();
-								to = d.newPosition.toArray().toString();
-								hit = d.hitPoint.toArray().toString();
-								console.log("Teleported: "+from+" -> "+to+", Hitpoint: "+hit);
-						});
-				}
-		});
-
 		</script>
   </head>
   <body>
@@ -93,6 +26,14 @@
 				<a-mixin id="portal-stone-mixin" 
 								 geometry="primitive: box" scale="0.8 0.3 0.8" 
 								 material="src: #portal-stone-texture;"></a-mixin>
+				<a-mixin id="old-font-mixin"
+								 text="font: fonts/eaglelake/EagleLake-Regular.json;
+								       shader: msdf;
+								       color: #222210;"></a-mixin>
+				<a-mixin id="scary-font-mixin"
+								 text="font: fonts/creepstercaps/CreepsterCaps-Regular.json;
+								       shader: msdf;
+								       color: #740101;"></a-mixin>
 
         <img id="sky" src="textures/sky.png">
         <img id="sunset" src="textures/sunset2.jpg">
@@ -214,7 +155,7 @@
 				<a-text value="Wave the laser over the portal stones until they glow, then move it away to warp to the linked stone. Click the trackpad and point to teleport around."
 								align="center" anchor="center" baseline="top"
 							  width="1.95" wrap-count="22"
-								color="#292816"></a-text>
+								mixin="old-font-mixin"></a-text>
 			</a-plane>
 
 			<a-plane id="instructions-2"
@@ -225,7 +166,30 @@
 				<a-text value="Legends say the echidnas ran from the setting sun and were driven to madness! Look down carefully, push the limit, and you will find what they found so long ago."
 								align="center" anchor="center" baseline="top"
 							  width="1.95" wrap-count="26"
-								color="#292816"></a-text>
+								mixin="old-font-mixin"></a-text>
+			</a-plane>
+
+			<a-plane id="scary-roof-hint"
+						 	 position="-3.500 -28.660 180.396"
+						   rotation="-90 -3 0"
+							 width="1" height="1"
+							 material="alphaTest: 1.0;">
+				<a-text value="He's right behind you"
+								align="center" anchor="center" baseline="top"
+							  width="10" wrap-count="26"
+								mixin="scary-font-mixin"></a-text>
+			</a-plane>
+
+			<a-plane id="glitch-hint"
+						 	 position="-8.689 -16.517 199.704"
+						   rotation="0 0 0"
+							 width="1" height="1"
+							 material="alphaTest: 1.0;">
+				<a-text value="He is always watching you, Aaron.\n\nGlitch through the wall to escape, Knuckles-style!"
+								align="center" anchor="center" baseline="top"
+							  width="15" wrap-count="28"
+								mixin="old-font-mixin"
+								color="white"></a-text>
 			</a-plane>
 
       <a-gltf-model id="tailsdoll" position="-13.147 -20.443 208.812"

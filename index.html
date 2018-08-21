@@ -38,6 +38,8 @@
         <img id="sky" src="textures/sky.png">
         <img id="sunset" src="textures/sunset2.jpg">
 
+		    <audio id="mystic-ruins-music" src="audio/MysticRuins.mp3"></audio>
+		    <audio id="ocean-waves" src="audio/CrispOceanWaves.mp3"></audio>
       </a-assets>
       
 			<a-entity id="cameraRig" portal-traveller="1">
@@ -71,8 +73,18 @@
       <a-obj-model id="village-level" position="0 -157.5 0" scale="0.25 0.25 0.25" src="#level-obj" mtl="#level-mtl"></a-obj-model>
       -->
 			<!-- LEVEL MODELS -->
-
       <a-obj-model id="village-level" position="0 -78.7 0" scale="0.125 0.125 0.125" src="#level-obj" mtl="#level-mtl"></a-obj-model>
+
+			<a-entity position="0 -100 30"
+								sound="src: #mystic-ruins-music; maxDistance: 10000; 
+											 refDistance: 10; volume: 0.35;
+											 loop: true; autoplay: true;"
+			></a-entity>
+			<a-entity position="0 -100 -200"
+								sound="src: #ocean-waves; maxDistance: 400; 
+											 refDistance: 3; rolloffFactor: 5; volume: 1.3;
+											 loop: true; autoplay: true;"
+			></a-entity>
 
 			<!-- PORTAL STONES -->
 			<a-entity mixin="portal-stone-mixin"

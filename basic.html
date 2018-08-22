@@ -76,6 +76,10 @@
 				
         <a-asset-item id="vr_controller_vive-obj" src="models-obj/Controllers/vr_controller_vive.obj"></a-asset-item>
         <a-asset-item id="vr_controller_vive-mtl" src="models-obj/Controllers/vr_controller_vive.mtl"></a-asset-item>
+
+		    <audio id="ring-sound" src="audio/Ring.mp3"></audio>
+		    <audio id="menu-open-sound" src="audio/OOT_PauseMenu_Open_Mono.mp3"></audio>
+		    <audio id="menu-close-sound" src="audio/OOT_PauseMenu_Close_Mono.mp3"></audio>
 			</a-assets>
 
 			<!--a-entity environment="preset: forest; dressingAmount: 500"></a-entity -->
@@ -118,9 +122,15 @@
 									laser-controls
 									vive-controls="hand: right;"
 									daydream-controls
-									under-menu
+									under-menu 
 									>
 									<a-box scale="0.035 0.015	0.07" color="#006666"></a-box>
+									<a-entity id="under-menu-open-sound"
+													  sound="src: #menu-open-sound; volume: 0.2" 
+									   			 	></a-entity>
+									<a-entity id="under-menu-close-sound"
+													  sound="src: #menu-close-sound; volume: 0.2" 
+									   			 	></a-entity>
 				</a-entity>
 	    </a-entity>
 

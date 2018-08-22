@@ -7,6 +7,39 @@ AFRAME.registerComponent('under-menu', {
 	schema: {
 		debug: { type: 'number', default: 1 }
 	},
+	applyMenuFading: function(ent, isText=false) {
+		var dur = 500;
+
+		var oalpha = document.createElement('a-animation'); 
+		if (isText) {
+			console.log(ent.getAttribute('visible'));
+			oalpha.setAttribute('attribute', 'visible');
+			oalpha.setAttribute('from', false); 
+			oalpha.setAttribute('to', true); 
+		} else {
+			oalpha.setAttribute('attribute', 'material.opacity');
+			oalpha.setAttribute('from', '0'); 
+			oalpha.setAttribute('to', '1'); 
+		}
+		oalpha.setAttribute('dur', dur); 
+		oalpha.setAttribute('begin', 'under-menu-open'); 
+		ent.appendChild(oalpha);
+
+		var calpha = document.createElement('a-animation'); 
+		if (isText) {
+			calpha.setAttribute('attribute', 'visible');
+			calpha.setAttribute('from', true); 
+			calpha.setAttribute('to', false); 
+			calpha.setAttribute('dur', 1); 
+		} else {
+			calpha.setAttribute('attribute', 'material.opacity');
+			calpha.setAttribute('from', '1'); 
+			calpha.setAttribute('to', '0'); 
+			calpha.setAttribute('dur', dur); 
+		}
+		calpha.setAttribute('begin', 'under-menu-close'); 
+		ent.appendChild(calpha);
+	},
 	attachMenuEntity: function() {
 		var ent = document.createElement('a-entity');
 		if (this.width == undefined) this.width = 0.1;
@@ -16,14 +49,18 @@ AFRAME.registerComponent('under-menu', {
 		ent.setAttribute('geometry', "primitive: plane;"
 																 +"width: "+this.width+"; "
 																 +"height: "+this.height+"; "); 
-		ent.setAttribute('material', 'color: #333333');
+		ent.setAttribute('material', 'color: #333333; opacity: 1;');
 		ent.setAttribute('position', this.localPos);
 		ent.setAttribute('rotation', '90 180 0');
+		
 		this.el.appendChild(ent);
+		this.applyMenuFading(ent);
+
 		return ent;
 	},
 	attachVisionBox: function() {
 		var sideLen = 0.8;
+		this.visionRadius = sideLen/2;
 		this.visionBox = { x: sideLen, y: sideLen, z: sideLen };
 		var vb = this.visionBox;
 		var ent = document.createElement('a-box');
@@ -34,15 +71,46 @@ AFRAME.registerComponent('under-menu', {
 		var pos = Object.assign({},this.localPos);
 		pos.y -= (vb.y / 2);
 		ent.setAttribute('position', pos);
-		ent.setAttribute('material', 'color: blue; opacity: 0;');
+		ent.setAttribute('material', 'color: blue; opacity: 0.1;');
+		ent.setAttribute('visible', false);
 		this.el.appendChild(ent);
 		return ent;
 	},
+	checkVisionBox: function() {
+		var hpos = new THREE.Vector3();
+		hpos.setFromMatrixPosition(this.headElem.object3D.matrixWorld);
+		var vpos = new THREE.Vector3();
+		vpos.setFromMatrixPosition(this.visionBoxEntity.object3D.matrixWorld);
+		var diffLenSq = hpos.sub(vpos).lengthSq();
+		var visionSq = this.visionRadius * this.visionRadius;
+
+		if (diffLenSq < visionSq) {
+			return true;
+		} else {
+			return false;
+		}
+	},
+
 	attachDebugMessage: function() {
-		var ent = document.createElement('a-text');
+		//var ent = document.createElement('a-text');
+		var ent = document.createElement('a-entity');
 		var m = 0.01;
 		var w = this.width-(2*m);
 		var h = this.height-(2*m);
+		ent.setAttribute('id', 'under-menu-text');
+		ent.setAttribute('position', '0 '+(h/2)+' 0.001');
+		
+		var text = {};
+		text['width'] = w;
+		text['height'] = h;
+		text['align'] = 'left';
+		text['anchor'] = 'center';
+		text['baseline'] = 'top';
+		text['wrapCount'] = '16';
+
+		console.log(text);
+		ent.setAttribute('text', text);
+		/*
 		ent.setAttribute('id', 'under-menu-text');
 		ent.setAttribute('position','0 '+(h/2)+' 0.001');
 		ent.setAttribute('width', w);
@@ -51,6 +119,7 @@ AFRAME.registerComponent('under-menu', {
 		ent.setAttribute('anchor', 'center');
 		ent.setAttribute('baseline', 'top');
 		ent.setAttribute('wrap-count', '16');
+		*/
 		if (this.menuEntity) {
 			this.menuEntity.appendChild(ent);
 		}
@@ -58,14 +127,45 @@ AFRAME.registerComponent('under-menu', {
 	},
 	setDebugMessage: function(msg) {
 		if (this.data.debug == 1) {
-			this.debugEntity.setAttribute('value', msg);
+			//this.debugEntity.setAttribute('value', msg);
+			this.debugEntity.setAttribute('text', 'value: '+msg);
+		}
+	},
+
+	// TODO: get rid of self reference, check if necessary?
+	openMenu: function(self) {
+		if (!self.menuActive) {
+			self.menuEntity.emit('under-menu-open', { state: 1 }, true);
+			self.menuActive = true;
+			if (self.openSound) self.openSound.components.sound.playSound();
+			if (self.debugEntity) self.debugEntity.setAttribute('visible', true);
+		}
+	},
+	closeMenu: function(self, silent=false) {
+		if (self.menuActive) { 
+			self.menuEntity.emit('under-menu-close', { state: 1 }, true);
+			self.menuActive = false;
+			if (self.closeSound && !silent) self.closeSound.components.sound.playSound();
+			if (self.debugEntity) self.debugEntity.setAttribute('visible', false);
 		}
 	},
 	renderList: function() {
 	},
+
 	init: function() {
+		this.menuActive = false;
+		this.menuLevel = 0;
+
+		// Menu sounds
+		this.openSound = this.el.querySelector("#under-menu-open-sound");
+		this.closeSound = this.el.querySelector("#under-menu-close-sound");
+
+		// Vision box elements
+		this.headElem = document.querySelector("a-entity[camera]");
 		this.menuEntity = this.attachMenuEntity();
+		this.visionRadius = 1;
 		this.visionBoxEntity = this.attachVisionBox();
+
 		if (this.data.debug == 1)
 		{
 			this.debugEntity = this.attachDebugMessage();
@@ -129,7 +229,25 @@ AFRAME.registerComponent('under-menu', {
 		// Double-tap and check if in visionbox
 		this.el.addEventListener('trackpad-tap', function (event) {
 			var n = event.detail.count;
-			console.log('TAP: '+n);
+			if (self.checkVisionBox()) {
+				if (n == 2)
+				{
+					if (self.menuActive) {
+						if (self.menuLevel <= 0) self.closeMenu(self);
+					} else {
+						self.openMenu(self);
+					}
+				}
+			}
 		});
+
+		this.el.sceneEl.addEventListener('under-menu-open', function (event) {
+			self.setDebugMessage("MENU OPEN");
+		});
+		this.el.sceneEl.addEventListener('under-menu-close', function (event) {
+			self.setDebugMessage("MENU CLOSE");
+		});
+
+		this.el.emit('under-menu-close');
 	}
 });

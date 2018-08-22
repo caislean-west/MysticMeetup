@@ -6,6 +6,7 @@
 		<script src="https://unpkg.com/aframe-environment-component/dist/aframe-environment-component.min.js"></script>
 		<script src="portal-stone.js"></script>
 		<script src="under-menu.js"></script>
+		<script src="trackpad-swipe.js"></script>
 
 		<script>
 		AFRAME.registerComponent('log', {
@@ -118,6 +119,7 @@
 				-->
 	      <a-entity id="right-hand" 
 									teleport-controls="cameraRig: #cameraRig; teleportOrigin: #head;"
+									trackpad-swipe
 									controller-cursor
 									laser-controls
 									vive-controls="hand: right;"

@@ -205,93 +205,9 @@ AFRAME.registerComponent('under-menu', {
 			setInterval(this.dispRot, 1000, this);
 		}
 
-		// Swipe variables
-		this.deadzone = 0.2;
-		this.touchStart = null;
-		this.touchEnd = null;
-		this.sampleDelay = 40;
-		this.sampleCount = 0;
-
-		// Tap variables
-		this.singleTapDur = 1000;
-		this.doubleTapDur = 200;
-		this.singleTapActive = false;
-		this.doubleTapActive = false;
-		this.singleTapFn = null;
-		this.doubleTapFn = null;
-		this.tapCount = 0;
-
 		var self = this;
 
-		this.el.addEventListener('trackpadtouchstart', function(event) {
-			if (self.singleTapFn != null) {
-				clearTimeout(self.singleTapFn);
-				self.singleTapFn = null;
-			}
-			self.singleTapActive = true;
-
-			if (self.axisFn != null) {
-				self.el.removeEventListener('axismove', self.axisFn);
-				console.log("AXISMOVE Removed");
-				self.axisFn = null;
-			}
-			// Get axis value at start
-			self.axisFn = self.el.addEventListener('axismove', function(event) {
-				self.sampleCount++;
-				if (self.sampleCount > self.sampleDelay) {
-					console.log(event.detail.axis);
-					self.touchStart = Object.assign({}, self.touchEnd);
-					self.touchEnd = Object.assign({}, event.detail.axis);
-					self.sampleCount = 0;
-				}
-			});
-			console.log("AXISMOVE Added");
-
-			self.singleTapFn = setTimeout(function() {
-				self.singleTapActive = false;
-			}, self.singleTapDur);
-		});
-		
-		this.el.addEventListener('trackpadtouchend', function() {
-			self.el.removeEventListener('axismove', self.axisFn);
-			console.log("AXISMOVE Removed");
-
-			if (self.singleTapActive) {
-				self.tapCount++;
-				self.el.emit('trackpad-tap', {count: self.tapCount}, true);
-				
-				// Check direction and generate event
-				if (self.touchStart != null && self.touchEnd != null) {
-					var v1 = self.touchStart;
-					var v2 = self.touchEnd;
-					var touchVec = { x: (v2[0]-v1[0]), y: (v2[1]-v1[1]) };
-					
-					self.el.emit('trackpad-swipe', {vector: touchVec}, true);
-
-					self.touchStart = null;
-					self.touchEnd = null;
-				}
-			}
-			if (self.doubleTapFn != null) {
-				clearTimeout(self.doubleTapFn);
-				self.doubleTapFn = null;
-			}
-			self.doubleTapActive = true;
-			self.doubleTapFn = setTimeout(function() {
-				self.doubleTapActive = false;
-				self.tapCount = 0;
-			}, self.doubleTapDur);
-		});
-
-		// Log number of taps for reference
-		if (this.debug != 0) {
-			this.el.addEventListener('trackpad-tap', function (event) {
-				var n = event.detail.count;
-				console.log('TAP: '+n);
-			});
-		}
-
-		// Double-tap and check if in visionbox
+		// Menu response to tap events
 		this.el.addEventListener('trackpad-tap', function (event) {
 			var n = event.detail.count;
 			if (self.checkVisionBox()) {
@@ -306,22 +222,6 @@ AFRAME.registerComponent('under-menu', {
 			}
 		});
 
-		// Generate cardinal swipe
-		this.el.addEventListener('trackpad-swipe', function (event) {
-			var v = event.detail.vector;
-			var d = self.deadzone;
-			
-			if (v.x > d && -d < v.y && v.y < d) {
-				self.el.emit('trackpad-swipe-cardinal', { dir: 'right'}, true);
-			} else if (v.x < -d && -d < v.y && v.y < d) {
-				self.el.emit('trackpad-swipe-cardinal', { dir: 'left'}, true);
-			} else if (v.y > d && -d < v.x && v.x < d) {
-				self.el.emit('trackpad-swipe-cardinal', { dir: 'up'}, true);
-			} else if (v.y < -d && -d < v.x && v.x < d) {
-				self.el.emit('trackpad-swipe-cardinal', { dir: 'down'}, true);
-			}
-		});
-
 		// Navigate menu
 		this.el.addEventListener('trackpad-swipe-cardinal', function (event) {
 			var dir = event.detail.dir;
@@ -329,6 +229,7 @@ AFRAME.registerComponent('under-menu', {
 			self.cardinalMove(dir);
 		});
 
+		// Response to open/close menu events
 		this.el.sceneEl.addEventListener('under-menu-open', function (event) {
 			self.setDebugMessage("MENU OPEN");
 		});

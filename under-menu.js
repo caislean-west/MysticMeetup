@@ -126,10 +126,12 @@ AFRAME.registerComponent('under-menu', {
 		return ent;
 	},
 	setDebugMessage: function(msg) {
-		if (this.data.debug == 1) {
-			//this.debugEntity.setAttribute('value', msg);
-			this.debugEntity.setAttribute('text', 'value: '+msg);
-		}
+		this.debugMessage = msg;
+		this.render();
+	},
+	setTopMessage: function(msg) {
+		this.topMessage = msg;
+		this.render();
 	},
 
 	// TODO: get rid of self reference, check if necessary?
@@ -149,12 +151,35 @@ AFRAME.registerComponent('under-menu', {
 			if (self.debugEntity) self.debugEntity.setAttribute('visible', false);
 		}
 	},
-	renderList: function() {
+	cardinalMove: function(dir) {
+		if (dir == 'right') {
+			this.setTopMessage("Swipe [>>]");
+		} else if (dir == 'left') {
+			this.setTopMessage("Swipe [<<]");
+		} else if (dir == 'up') {
+			this.setTopMessage("Swipe [/\\]");
+		} else if (dir == 'down') {
+			this.setTopMessage("Swipe [\\/]");
+		} 
+	},
+	render: function() {
+		var msg = this.topMessage
+							+"\n---\n"
+							+this.debugMessage;
+		if (this.data.debug == 1) {
+			this.debugEntity.setAttribute('text', 'value: '+msg);
+		}
+	},
+	renderList: function () {
 	},
 
 	init: function() {
 		this.menuActive = false;
 		this.menuLevel = 0;
+
+		// Text lines
+		this.topMessage = "";
+		this.debugMessage = "";
 
 		// Menu sounds
 		this.openSound = this.el.querySelector("#under-menu-open-sound");
@@ -180,6 +205,13 @@ AFRAME.registerComponent('under-menu', {
 			setInterval(this.dispRot, 1000, this);
 		}
 
+		// Swipe variables
+		this.deadzone = 0.2;
+		this.touchStart = null;
+		this.touchEnd = null;
+		this.sampleDelay = 40;
+		this.sampleCount = 0;
+
 		// Tap variables
 		this.singleTapDur = 1000;
 		this.doubleTapDur = 200;
@@ -191,21 +223,54 @@ AFRAME.registerComponent('under-menu', {
 
 		var self = this;
 
-		this.el.addEventListener('trackpadtouchstart', function() {
+		this.el.addEventListener('trackpadtouchstart', function(event) {
 			if (self.singleTapFn != null) {
 				clearTimeout(self.singleTapFn);
 				self.singleTapFn = null;
 			}
 			self.singleTapActive = true;
+
+			if (self.axisFn != null) {
+				self.el.removeEventListener('axismove', self.axisFn);
+				console.log("AXISMOVE Removed");
+				self.axisFn = null;
+			}
+			// Get axis value at start
+			self.axisFn = self.el.addEventListener('axismove', function(event) {
+				self.sampleCount++;
+				if (self.sampleCount > self.sampleDelay) {
+					console.log(event.detail.axis);
+					self.touchStart = Object.assign({}, self.touchEnd);
+					self.touchEnd = Object.assign({}, event.detail.axis);
+					self.sampleCount = 0;
+				}
+			});
+			console.log("AXISMOVE Added");
+
 			self.singleTapFn = setTimeout(function() {
 				self.singleTapActive = false;
 			}, self.singleTapDur);
 		});
 		
 		this.el.addEventListener('trackpadtouchend', function() {
+			self.el.removeEventListener('axismove', self.axisFn);
+			console.log("AXISMOVE Removed");
+
 			if (self.singleTapActive) {
 				self.tapCount++;
 				self.el.emit('trackpad-tap', {count: self.tapCount}, true);
+				
+				// Check direction and generate event
+				if (self.touchStart != null && self.touchEnd != null) {
+					var v1 = self.touchStart;
+					var v2 = self.touchEnd;
+					var touchVec = { x: (v2[0]-v1[0]), y: (v2[1]-v1[1]) };
+					
+					self.el.emit('trackpad-swipe', {vector: touchVec}, true);
+
+					self.touchStart = null;
+					self.touchEnd = null;
+				}
 			}
 			if (self.doubleTapFn != null) {
 				clearTimeout(self.doubleTapFn);
@@ -239,6 +304,29 @@ AFRAME.registerComponent('under-menu', {
 					}
 				}
 			}
+		});
+
+		// Generate cardinal swipe
+		this.el.addEventListener('trackpad-swipe', function (event) {
+			var v = event.detail.vector;
+			var d = self.deadzone;
+			
+			if (v.x > d && -d < v.y && v.y < d) {
+				self.el.emit('trackpad-swipe-cardinal', { dir: 'right'}, true);
+			} else if (v.x < -d && -d < v.y && v.y < d) {
+				self.el.emit('trackpad-swipe-cardinal', { dir: 'left'}, true);
+			} else if (v.y > d && -d < v.x && v.x < d) {
+				self.el.emit('trackpad-swipe-cardinal', { dir: 'up'}, true);
+			} else if (v.y < -d && -d < v.x && v.x < d) {
+				self.el.emit('trackpad-swipe-cardinal', { dir: 'down'}, true);
+			}
+		});
+
+		// Navigate menu
+		this.el.addEventListener('trackpad-swipe-cardinal', function (event) {
+			var dir = event.detail.dir;
+
+			self.cardinalMove(dir);
 		});
 
 		this.el.sceneEl.addEventListener('under-menu-open', function (event) {

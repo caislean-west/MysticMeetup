@@ -2,8 +2,10 @@
   <head>
 		<script src="lib-js/aframe-v0.8.2.js"></script>
     <script src="lib-js/aframe-teleport-controls.min.js"></script>
+		<!--
 		<script src="https://cdn.rawgit.com/AltspaceVR/aframe-altspace-component/v1.3.2/dist/aframe-altspace-component.min.js"></script>
 		<script src="https://unpkg.com/aframe-environment-component/dist/aframe-environment-component.min.js"></script>
+		-->
 		<script src="portal-stone.js"></script>
 		<script src="under-menu.js"></script>
 		<script src="trackpad-swipe.js"></script>
@@ -69,7 +71,10 @@
 		</script>
   </head>
   <body>
+		<!--
     <a-scene altspace="vertical-align: center;" log="Test, log.">
+		-->
+    <a-scene log="Test, log.">
         
 			<a-assets>
 				<img id="skyTexture" src="textures/sky.png">
@@ -125,6 +130,7 @@
 									vive-controls="hand: right;"
 									daydream-controls
 									under-menu 
+									trackpad-swipe-visualizer
 									>
 									<a-box scale="0.035 0.015	0.07" color="#006666"></a-box>
 									<a-entity id="under-menu-open-sound"

@@ -1,0 +1,119 @@
+<html>
+  <head>
+    <title>A-Frame Altspace Component - Basic</title>
+    <!--script src="lib-js/aframe-v0.8.2.js"></script-->
+    <script src="https://aframe.io/releases/0.7.0/aframe.min.js"></script>
+    <script src="https://sdk.altvr.com/libs/altspace.js/2.9.0/altspace.min.js"></script>
+  </head>
+  <body>
+    <a-scene altspace='fullspace: true'>
+      <!-- cube size will be 1 meter in AltspaceVR -->
+      <a-box color="#C03577" position='0 0 0'></a-box>
+
+      <a-assets>
+        <a-asset-item id="level-gltf" src="models-gltf/PastVillage.gltf"></a-asset-item>
+        <a-asset-item id="emeraldshard" src="models-gltf/EmeraldPiece.gltf"></a-asset-item>
+        <img id="sunset" src="textures/sunset2.jpg">
+        
+<!--
+        <a-asset-item id="level-obj" src="models-obj/PastVillage/PastVillage.obj"></a-asset-item>
+        <a-asset-item id="level-mtl" src="models-obj/PastVillage/PastVillage.mtl"></a-asset-item>
+        <a-asset-item id="level-gltf" src="models-gltf/PastVillage.gltf"></a-asset-item>
+        <a-asset-item id="tailsdoll" src="models-gltf/TailsDoll.gltf"></a-asset-item>
+        <a-asset-item id="emeraldshard" src="models-gltf/EmeraldPiece.gltf"></a-asset-item>
+        
+				<img id="portal-stone-texture" src="models-obj/PastVillage/mr_064k_pcueye.png">
+				<a-mixin id="portal-stone-mixin" 
+								 geometry="primitive: box" scale="0.8 0.3 0.8" 
+								 material="src: #portal-stone-texture;"></a-mixin>
+				<a-mixin id="old-font-mixin"
+								 text="font: fonts/eaglelake/EagleLake-Regular.json;
+								       shader: msdf;
+								       color: #222210;"></a-mixin>
+				<a-mixin id="scary-font-mixin"
+								 text="font: fonts/creepstercaps/CreepsterCaps-Regular.json;
+								       shader: msdf;
+								       color: #740101;"></a-mixin>
+
+        <img id="sky" src="textures/sky.png">
+        <img id="sunset" src="textures/sunset2.jpg">
+
+		    <audio id="mystic-ruins-music" autoplay="false" src="audio/MysticRuins.mp3"></audio>
+		    <audio id="ocean-waves" src="audio/CrispOceanWaves.mp3"></audio>
+				-->
+      </a-assets>
+      
+
+							<a-gltf-model src="#emeraldshard" position="0 2 2" scale="0.25 0.25 0.25">
+											<a-animation attribute="position"
+																	 to="0 0 2"
+																	 dur="1500" 
+																	 direction="alternate" repeat="indefinite">
+							</a-gltf-model>
+
+<a-entity id="level-box" position="0 78.7 -80">
+      <a-obj-model id="village-level" note="does not render" position="0 -78.7 0" scale="0.125 0.125 0.125" src="#level-obj" mtl="#level-mtl" n-mesh-collider="type: environment; convex: true"></a-obj-model>
+</a-entity>
+<!--
+      <a-gltf-model id="village-level" position="0 -78.7 0" scale="0.125 0.125 0.125" src="#level-gltf" n-mesh-collider="type: environment; convex: true"></a-gltf-model>
+      <a-obj-model id="village-level" 
+									 note="renders geom and bad mesh but no textures"
+									 position="0 -78.7 0" 
+									 scale="0.125 0.125 0.125" 
+									 src="#level-obj" mtl="#level-mtl" 
+									 ></a-obj-model>
+							<a-gltf-model src="#level-gtlf" 
+									 					position="0 -78.7 0" 
+									 					scale="0.125 0.125 0.125" 
+														>
+							</a-gltf-model>
+      <a-light type="ambient" color="#FFF"></a-light>
+      <a-sky position="0 -1000 0" rotation="0 140 0" src="#sunset"></a-sky>
+      
+<a-entity id="level-box" position="0 78.7 -80">
+      
+      <a-obj-model id="village-level" position="0 -78.7 0" scale="0.125 0.125 0.125" src="#level-obj" mtl="#level-mtl" n-mesh-collider="type: environment; convex: true;"></a-obj-model>
+
+			<a-entity position="0 -100 30"
+								sound="src: #mystic-ruins-music; maxDistance: 10000; 
+											 refDistance: 10; volume: 0.35;
+											 loop: true; autoplay: true;"
+			></a-entity>
+			<a-entity position="0 -100 -200"
+								sound="src: #ocean-waves; maxDistance: 400; 
+											 refDistance: 3; rolloffFactor: 5; volume: 1.3;
+											 loop: true; autoplay: true;"
+			></a-entity>
+			
+			    <a-entity id="shardRing" position="0 2 0" scale="0.75 0.75 0.7">
+
+							<a-animation attribute="rotation" to="0 360 0" dur="30000" 
+													 direction="forward" repeat="indefinite"
+													 easing="linear">
+							</a-animation>
+							<a-gltf-model src="#emeraldshard" position="0 1.9 -9" scale="0.25 0.25 0.25">
+											<a-animation attribute="position"
+																	 to="0 0 -9"
+																	 dur="1500" 
+																	 direction="alternate" repeat="indefinite">
+							</a-gltf-model>
+							<a-gltf-model src="#emeraldshard" position="7.8 0 4.5" scale="0.25 0.25 0.25">
+											<a-animation attribute="position"
+																	 to="7.8 1.9 4.5"
+																	 dur="2000" 
+																	 direction="alternate" repeat="indefinite">
+							</a-gltf-model>
+							<a-gltf-model src="#emeraldshard" position="-7.8 0 4.5" scale="0.25 0.25 0.25">
+											<a-animation attribute="position"
+																	 to="-7.8 1.9 4.5"
+																	 dur="2500" 
+																	 direction="alternate" repeat="indefinite">
+							</a-gltf-model>
+			</a-entity>
+      
+<a-entity>
+-->
+
+    </a-scene>
+  </body>
+</html>

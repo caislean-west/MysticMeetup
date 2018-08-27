@@ -5,7 +5,8 @@ caislean-west / 8-20-2018
 
 AFRAME.registerComponent('under-menu', {
 	schema: {
-		debug: { type: 'number', default: 1 }
+		debug: { type: 'number', default: 1 },
+		type: { type: 'string', default: 'tap' }
 	},
 	applyMenuFading: function(ent, isText=false) {
 		var dur = 500;
@@ -205,22 +206,41 @@ AFRAME.registerComponent('under-menu', {
 			setInterval(this.dispRot, 1000, this);
 		}
 
+		this.lookInterval = 100;
+
 		var self = this;
 
-		// Menu response to tap events
-		this.el.addEventListener('trackpad-tap', function (event) {
-			var n = event.detail.count;
-			if (self.checkVisionBox()) {
-				if (n == 2)
-				{
-					if (self.menuActive) {
-						if (self.menuLevel <= 0) self.closeMenu(self);
-					} else {
-						self.openMenu(self);
+		// Technique for opening menu
+		if (this.data.type == 'look') {
+			this.lookFn = function (self) {
+				var looking = self.checkVisionBox();
+				var active = self.menuActive;
+				if (looking != active) {
+					clearInterval(self.lookFn);
+					if (looking)	self.openMenu(self);
+					else					self.closeMenu(self);
+					self.menuActive = looking;
+					setInterval(self.lookFn, self.lookInterval, self);
+				} 
+			}
+
+			setInterval(this.lookFn, this.lookInterval, this);
+
+		} else {
+			this.el.addEventListener('trackpad-tap', function (event) {
+				var n = event.detail.count;
+				if (self.checkVisionBox()) {
+					if (n == 2)
+					{
+						if (self.menuActive) {
+							if (self.menuLevel <= 0) self.closeMenu(self);
+						} else {
+							self.openMenu(self);
+						}
 					}
 				}
-			}
-		});
+			});
+		}
 
 		// Navigate menu
 		this.el.addEventListener('trackpad-swipe-cardinal', function (event) {
